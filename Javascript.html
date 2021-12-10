@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" href="myStyleSheet.css">
+        <title>My First Javascript Test</title>
+    </head>
+    <body>
+        <h2>My todo List</h2>
+        <button id="button1">Get Todos</button>
+        <div  class="loading">
+            <img id="img_id" src="g.gif" alt="loading..."/>
+        </div>
+        <div id="myToDoList" style="display: none">
+        <table id="testData"></table>
+    </div>
+    <div class="pagination"> 
+        <button id="back_ID" onclick="back()">Back</button>
+        <button id="next_ID" onclick="next()">Next</button>
+    </div>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+        const btn = document.getElementById("button1");
+        const list = document.getElementById("myToDoList");
+        btn.onclick = function () {
+        if (list.style.display !== "none")
+        {
+            list.style.display = "none";
+        }
+        else
+        {
+            list.style.display = "block";
+            getapi();
+        }
+    };
+    $('#testData');
+   });
+    function hideLoading(){
+         document.getElementById('img_id').style.display = 'none';
+    }
+    var data=[];
+    var paging=[];
+    async function getapi() {
+        const url = "https://jsonplaceholder.typicode.com/todos";
+        const response = await fetch(url);
+        data = await response.json();
+        paging = data.slice(start, end);
+        table(paging);
+        hideLoading();
+    }
+    getapi();
+    var start = 0;
+    var end = 10;
+    function table(paginatedData) {
+        let heading =`<tr><th>userId</th><th>id</th><th>title</th><th>Status</th><th> Actions</th></tr>`;
+        for (let r of paginatedData) {
+        if(r.completed === false){
+            var btn = '<button id="status' + r.id + '" onclick="statusChange(' + r.id + ')">Completed</button>'
+        }
+        else{
+            btn =' '
+        }
+        var shortName;
+        var x;
+        var name = r.title;
+        if (name.length > 15) {
+            shortName = name.substring(0, 15);
+            x = shortName + "...";
+        }
+        heading += `<tr>
+            <td>${r.userId} </td>
+            <td>${r.id}</td>
+            <td>${x}</td>
+            <td>${r.completed}</td>
+            <td>${btn}</td>
+            </tr>`;
+    }
+    document.getElementById("testData").innerHTML = heading;
+    console.log(end, data.length);
+    if(end >=data.length){
+        document.getElementById('next_ID').style.display = 'none';
+    }
+    else{
+        document.getElementById('next_ID').style.display = 'block';
+    }
+    if(start==0){
+        document.getElementById('back_ID').style.display = 'none';
+    }
+    else{
+        document.getElementById('back_ID').style.display = 'block';
+    }
+    }
+    function statusChange(ID){
+        data = data.map(e =>{
+        if( e.id===ID){
+        e.completed = true;
+        }
+        return e;
+        });
+        table(paging);
+    }
+   
+    
+    function next(){
+        start = start+10;
+        end = end + 10;
+        paging= data.slice(start, end);
+       // console.log(paging)
+        table(paging);
+        
+    }
+    function back(){
+       start= start - 10;
+       end = end - 10;
+       paging= data.slice(start , end);
+       console.log(paging)
+       table(paging);
+        
+    }
+    document.getElementById('testData').innerHTML = paging;
+    </script>
+</body>
+</html>
